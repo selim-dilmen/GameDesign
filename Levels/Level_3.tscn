@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[node name="Level3" type="Node3D"]
+
+[node name="Label3D" type="Label3D" parent="."]
+text = "Level 3"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)

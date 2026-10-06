@@ -2,31 +2,165 @@
 
 [ext_resource type="Script" uid="uid://f5tyw8sd62vk" path="res://player.gd" id="1_a202f"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_v6ox1"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_block"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8c2wn"]
-radius = 0.58251953
-height = 2.027588
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.22, 0.19, 0.17, 1)
 
-[node name="Node3D" type="Node3D" unique_id=194333697]
+[sub_resource type="BoxMesh" id="BoxMesh_block"]
 
-[node name="Player" type="CharacterBody3D" parent="." unique_id=824375088]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
+albedo_color = Color(0.6, 0.6, 0.62, 1)
+roughness = 0.9
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.45
+height = 1.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
+albedo_color = Color(0.31, 0.72, 0.23, 1)
+roughness = 0.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+radius = 0.45
+height = 1.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye_white"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+radius = 0.08
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye_black"]
+albedo_color = Color(0, 0, 0, 1)
+
+[node name="Root" type="Node3D" unique_id=455146366]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1581296696]
+transform = Transform3D(1, 0, 0, 0, -0.173648, 0.984808, 0, -0.984808, -0.173648, 0, 6, 0)
+light_energy = 2.4
+light_bake_mode = 1
+shadow_enabled = true
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1169866396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+light_energy = 1.6
+omni_range = 18.0
+
+[node name="Room" type="Node3D" parent="." unique_id=1126479459]
+
+[node name="Floor" type="StaticBody3D" parent="Room" unique_id=1955219375]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Floor" unique_id=1357966416]
+transform = Transform3D(12, 0, 0, 0, 1, 0, 0, 0, 12, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Floor" unique_id=1342385965]
+transform = Transform3D(12, 0, 0, 0, 1, 0, 0, 0, 12, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_floor")
+mesh = SubResource("BoxMesh_block")
+
+[node name="WallLeft" type="StaticBody3D" parent="Room" unique_id=1344578954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/WallLeft" unique_id=1779666869]
+transform = Transform3D(0.5, 0, 0, 0, 6, 0, 0, 0, 12, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/WallLeft" unique_id=310442959]
+transform = Transform3D(0.5, 0, 0, 0, 6, 0, 0, 0, 12, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wall")
+mesh = SubResource("BoxMesh_block")
+
+[node name="WallRight" type="StaticBody3D" parent="Room" unique_id=475948588]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/WallRight" unique_id=1215485026]
+transform = Transform3D(0.5, 0, 0, 0, 6, 0, 0, 0, 12, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/WallRight" unique_id=1859613369]
+transform = Transform3D(0.5, 0, 0, 0, 6, 0, 0, 0, 12, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wall")
+mesh = SubResource("BoxMesh_block")
+
+[node name="WallBack" type="StaticBody3D" parent="Room" unique_id=558723513]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/WallBack" unique_id=259573081]
+transform = Transform3D(12, 0, 0, 0, 6, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/WallBack" unique_id=1523210702]
+transform = Transform3D(12, 0, 0, 0, 6, 0, 0, 0, 0.5, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wall")
+mesh = SubResource("BoxMesh_block")
+
+[node name="WallFront" type="StaticBody3D" parent="Room" unique_id=1142929212]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/WallFront" unique_id=1237580364]
+transform = Transform3D(12, 0, 0, 0, 6, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/WallFront" unique_id=1317311154]
+transform = Transform3D(12, 0, 0, 0, 6, 0, 0, 0, 0.5, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wall")
+mesh = SubResource("BoxMesh_block")
+
+[node name="Ceiling" type="StaticBody3D" parent="Room" unique_id=1994111327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Room/Ceiling" unique_id=1579961665]
+transform = Transform3D(12, 0, 0, 0, 1, 0, 0, 0, 12, 0, 0, 0)
+shape = SubResource("BoxShape3D_block")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Room/Ceiling" unique_id=1173203341]
+transform = Transform3D(12, 0, 0, 0, 1, 0, 0, 0, 12, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wall")
+mesh = SubResource("BoxMesh_block")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=132101068]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 script = ExtResource("1_a202f")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1266046691]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15639412, 1.0341225, 0.87652135)
-mesh = SubResource("CapsuleMesh_v6ox1")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=724596853]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_player")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/MeshInstance3D" unique_id=1231831487]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00012207031, 0)
-shape = SubResource("CapsuleShape3D_8c2wn")
+[node name="Body" type="MeshInstance3D" parent="Player" unique_id=1352496177]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+material_override = SubResource("StandardMaterial3D_player")
+mesh = SubResource("CapsuleMesh_player")
 
-[node name="CameraOrigin" type="Node3D" parent="Player/MeshInstance3D/CollisionShape3D" unique_id=1331636520]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.71201766, 0)
+[node name="EyeLeft" type="MeshInstance3D" parent="Player/Body" unique_id=683962655]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0.22, -0.38)
+material_override = SubResource("StandardMaterial3D_eye_white")
+mesh = SubResource("SphereMesh_eye")
 
-[node name="SpringArm3D" type="SpringArm3D" parent="Player/MeshInstance3D/CollisionShape3D/CameraOrigin" unique_id=299389373]
-spring_length = 2.0
-margin = 0.5
+[node name="PupilLeft" type="MeshInstance3D" parent="Player/Body/EyeLeft" unique_id=513363479]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -0.08)
+material_override = SubResource("StandardMaterial3D_eye_black")
+mesh = SubResource("SphereMesh_eye")
 
-[node name="Camera3D" type="Camera3D" parent="Player/MeshInstance3D/CollisionShape3D/CameraOrigin/SpringArm3D" unique_id=1647092036]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.0175834)
+[node name="EyeRight" type="MeshInstance3D" parent="Player/Body" unique_id=356924637]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0.22, -0.38)
+material_override = SubResource("StandardMaterial3D_eye_white")
+mesh = SubResource("SphereMesh_eye")
+
+[node name="PupilRight" type="MeshInstance3D" parent="Player/Body/EyeRight" unique_id=1384122620]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -0.08)
+material_override = SubResource("StandardMaterial3D_eye_black")
+mesh = SubResource("SphereMesh_eye")
+
+[node name="CameraOrigin" type="Node3D" parent="Player" unique_id=1899053726]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraOrigin" unique_id=1942006414]
+spring_length = 3.5
+margin = 0.1
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraOrigin/SpringArm3D" unique_id=69219226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5)
+current = true
