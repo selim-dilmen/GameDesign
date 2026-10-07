@@ -3,20 +3,21 @@ extends Node3D
 #
 # Das Bean-Kind liegt im Bett, aber es ist zu hell.
 # Der offensichtliche Lichtschalter schaltet nur die Nachttischlampe an (noch heller!).
-# Lösung: Den versteckten Stock hinter dem Schrank holen und dem Schalter einen Schlag
-# verpassen -> Kurzschluss, Lampe kaputt, Licht aus. Danach das Kind zudecken.
+# Lösung: Den versteckten Stock hinter dem Schrank holen und die Glühbirne an der
+# Decke zerschlagen -> Funken, Birne kaputt, Licht aus. Danach das Kind zudecken.
 # Gesteuert wird alles mit Linksklick in der Nähe der Dinge.
 
 const REACH_BED := 3.2
 const REACH_SWITCH := 2.2
 const REACH_STICK := 1.6
+const REACH_BULB := 1.7
 
 const AMBIENT_BRIGHT := 1.0
 const AMBIENT_DARK := 0.3
 const MOON_DARK := 0.45
 
-const HINT_STICK_AFTER := 100.0
-const HINT_SWITCH_AFTER := 60.0
+const HINT_STICK_AFTER := 120.0
+const HINT_SWITCH_AFTER := 120.0
 
 @onready var player: CharacterBody3D = $Player
 @onready var carry_bone: Node3D = $Player/CarryBone
@@ -80,7 +81,6 @@ func _ready() -> void:
 	var env: Environment = world_env.environment
 	env.ambient_light_energy = AMBIENT_BRIGHT
 	moon.light_energy = 0.0
-	show_message("Das Bean-Kind liegt im Bett und will schlafen.", 5.0)
 
 
 func _process(delta: float) -> void:
@@ -91,10 +91,10 @@ func _process(delta: float) -> void:
 	hint_timer += delta
 	if hint_stage == 0 and not has_stick and hint_timer >= HINT_STICK_AFTER:
 		hint_stage = 1
-		show_message("Vielleicht liegt hinter einem der Möbel etwas Nützliches …", 6.0)
+		show_message("Maybe there's something useful behind the closet...", 6.0)
 	elif hint_stage < 2 and has_stick and not lights_out and hint_timer >= HINT_SWITCH_AFTER:
 		hint_stage = 2
-		show_message("Dem Schalter sollte man mal ordentlich die Meinung sagen …", 6.0)
+		show_message("The lightbulb is on the ceiling... maybe I can reach it with this stick!", 6.0)
 
 	# Der Punkt in der Bildschirmmitte leuchtet, wenn ein Klick etwas bewirkt
 	crosshair.visible = _find_target() != ""
@@ -141,6 +141,7 @@ func _find_target() -> String:
 		["bed", bed.global_position, REACH_BED, (not has_stick) or lights_out],
 		["switch", switch_node.global_position, REACH_SWITCH, not lights_out],
 		["stick", stick.global_position, REACH_STICK, not has_stick],
+		["bulb", ceiling_bulb.global_position, REACH_BULB, has_stick and not lights_out],
 	]
 	for c in checks:
 		if not c[3]:
@@ -171,13 +172,9 @@ func _talk_to_child() -> void:
 		_tuck_in()
 		return
 	bed_talks += 1
-	if table_lamp_on:
-		show_message("Kind: „Aaah, jetzt ist es NOCH heller! Mach das aus!“", 4.5)
-		return
 	var lines: Array[String] = [
-		"Kind: „Es ist zu hell … ich kann so nicht einschlafen.“",
-		"Kind: „Bitte mach das Licht aus!“",
-		"Kind: „Es ist immer noch viel zu hell …“",
+		"Child: „It's too bright! I can't sleep...“",
+		"Child: „Please turn off the light!“",
 	]
 	show_message(lines[mini(bed_talks - 1, lines.size() - 1)], 4.5)
 
@@ -194,20 +191,16 @@ func _use_switch() -> void:
 	_set_table_lamp(table_lamp_on)
 
 	if table_lamp_on:
-		show_message("Klick! Die Nachttischlampe geht an.", 3.0)
+		show_message("The bedside lamp turns on.", 3.0)
 		var c := create_tween()
 		c.tween_interval(1.8)
 		c.tween_callback(_child_complains_about_lamp)
 	else:
-		show_message("Klick. Die Nachttischlampe geht wieder aus – im Zimmer bleibt es trotzdem hell.", 4.5)
-
-	if switch_presses == 5 and hint_stage == 0:
-		show_message("Der Schalter ist wohl nicht die Lösung … aber irgendwie muss das Licht doch ausgehen.", 5.0)
-
+		show_message("The bedside lamp turns off again.", 4.5)
 
 func _child_complains_about_lamp() -> void:
-	if table_lamp_on and not lights_out:
-		show_message("Kind: „Aaah! Noch heller! Mach das aus!“", 4.0)
+	if table_lamp_on and not lights_out and bed_talks != 0:
+		show_message("Child: „Aaah! It's even brighter now! Turn it off, please!“", 4.0)
 
 
 func _set_table_lamp(on: bool) -> void:
@@ -227,7 +220,7 @@ func _pick_up_stick() -> void:
 	var t := create_tween()
 	t.tween_property(carry_bone, "rotation_degrees:x", -70.0, 0.15)
 	t.tween_property(carry_bone, "rotation_degrees:x", -20.0, 0.2)
-	show_message("Ein stabiler Stock. Damit kann man bestimmt ordentlich zuschlagen.", 5.0)
+	show_message("A stick! Maybe this can help!", 5.0)
 
 
 func _swing_stick() -> void:
@@ -245,15 +238,17 @@ func _swing_stick() -> void:
 func _check_hit() -> void:
 	if lights_out:
 		return
+
+	# Birne: Spieler muss ungefähr darunter stehen
+	var to_bulb := ceiling_bulb.global_position - player.global_position
+	to_bulb.y = 0.0
+	if to_bulb.length() <= REACH_BULB:
+		_break_lamp()
+		return
+
+	# Schalter getroffen -> passiert nichts
 	var to_switch := switch_node.global_position - player.global_position
 	to_switch.y = 0.0
-	if to_switch.length() > REACH_SWITCH + 0.2:
-		return
-	var forward := -player.global_transform.basis.z
-	forward.y = 0.0
-	if forward.normalized().dot(to_switch.normalized()) < 0.1:
-		return
-	_break_lamp()
 
 
 # ---------------------------------------------------------------- Kurzschluss
@@ -263,12 +258,6 @@ func _break_lamp() -> void:
 	crosshair.visible = false
 	_spawn_sparks()
 
-	# Blitz am Schalter, Schalter hängt schief
-	spark_light.light_energy = 8.0
-	var flash := create_tween()
-	flash.tween_property(spark_light, "light_energy", 0.0, 0.3)
-	switch_toggle.position.y = -0.05
-
 	# Nachttischlampe geht aus und kippt um
 	_set_table_lamp(false)
 	var fall := create_tween()
@@ -277,6 +266,7 @@ func _break_lamp() -> void:
 
 	# Deckenlicht flackert und geht aus
 	var flicker := create_tween()
+	flicker.tween_property(ceiling_light, "light_energy", 6.0, 0.05)
 	flicker.tween_property(ceiling_light, "light_energy", 0.6, 0.07)
 	flicker.tween_property(ceiling_light, "light_energy", 2.0, 0.07)
 	flicker.tween_property(ceiling_light, "light_energy", 0.3, 0.10)
@@ -292,7 +282,7 @@ func _break_lamp() -> void:
 	if window_mat:
 		dark.tween_property(window_mat, "emission_energy_multiplier", 3.0, 1.0)
 
-	show_message("Funken! Die Lampe ist kaputt – und im ganzen Zimmer geht das Licht aus.", 4.5)
+	show_message("The lightbulb broke! Now it's dark!", 4.5)
 	var talk := create_tween()
 	talk.tween_interval(4.8)
 	talk.tween_callback(_child_after_dark)
@@ -308,7 +298,7 @@ func _ceiling_off() -> void:
 
 func _child_after_dark() -> void:
 	if not tucked_in:
-		show_message("Kind: „Endlich dunkel … Kannst du mich zudecken?“", 6.0)
+		show_message("Child: „Finally... Can you tuck me in?“", 6.0)
 
 
 func _spawn_sparks() -> void:
@@ -319,16 +309,17 @@ func _spawn_sparks() -> void:
 	mat.emission_energy_multiplier = 4.0
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3(0.05, 0.05, 0.05)
-	for i in 10:
+	var parent := ceiling_bulb.get_parent()  # CeilingLamp
+	for i in 14:
 		var s := MeshInstance3D.new()
 		s.mesh = mesh
 		s.material_override = mat
-		switch_node.add_child(s)
-		s.position = Vector3(0.1, 0.0, 0.0)
-		var dir := Vector3(randf_range(0.3, 1.0), randf_range(-0.4, 0.8), randf_range(-0.8, 0.8))
+		parent.add_child(s)
+		s.position = ceiling_bulb.position
+		var dir := Vector3(randf_range(-1, 1), randf_range(-1.5, 0.1), randf_range(-1, 1))
 		var t := create_tween().set_parallel(true)
-		t.tween_property(s, "position", s.position + dir * 0.9, 0.5).set_ease(Tween.EASE_OUT)
-		t.tween_property(s, "scale", Vector3.ZERO, 0.5)
+		t.tween_property(s, "position", s.position + dir * 0.9, 0.6).set_ease(Tween.EASE_OUT)
+		t.tween_property(s, "scale", Vector3.ZERO, 0.6)
 		t.chain().tween_callback(s.queue_free)
 
 
@@ -345,7 +336,7 @@ func _tuck_in() -> void:
 	b.tween_property(blanket, "position", Vector3(0.0, 1.025, 0.4), 1.4).set_trans(Tween.TRANS_SINE)
 	b.tween_property(blanket, "scale", Vector3.ONE, 1.4).set_trans(Tween.TRANS_SINE)
 
-	show_message("Du deckst das Kind liebevoll zu …", 3.0)
+	show_message("You tuck the kid in and it falls asleep…", 3.0)
 
 	var s := create_tween()
 	s.tween_interval(1.6)
@@ -355,7 +346,7 @@ func _tuck_in() -> void:
 
 
 func _child_falls_asleep() -> void:
-	show_message("Kind: „Danke … gute Nacht.“", 4.0)
+	show_message("Child: „Thank you! Good night...“", 4.0)
 	var e := create_tween().set_parallel(true)
 	e.tween_property(eye_left, "scale:y", 0.1, 0.8)
 	e.tween_property(eye_right, "scale:y", 0.1, 0.8)
@@ -368,7 +359,7 @@ func _child_falls_asleep() -> void:
 
 func _finish_level() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	finish_label.text = "Level 1 geschafft!"
+	finish_label.text = "Level 1 done!"
 	finish_panel.visible = true
 
 

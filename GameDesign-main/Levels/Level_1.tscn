@@ -2,7 +2,9 @@
 
 [ext_resource type="Script" uid="uid://bt2s2tae1peb2" path="res://Levels/Level_1.gd" id="1_lvl"]
 [ext_resource type="Script" uid="uid://f5tyw8sd62vk" path="res://player.gd" id="2_ply"]
-[ext_resource type="PackedScene" uid="uid://bkr22rm7x3gxl" path="res://Chibi Hamster 3D Character.glb" id="3_nl7va"]
+[ext_resource type="PackedScene" uid="uid://brpl3jbo1sfa1" path="res://Chibi Hamster 3D Character.fbx" id="2_wsn87"]
+[ext_resource type="PackedScene" uid="uid://dbb8ym7bkanol" path="res://Chibi Hamster 3D Character.glb" id="3_nl7va"]
+[ext_resource type="Script" uid="uid://dpj5hpg6pwow7" path="res://Levels/hamster_anim.gd" id="4_waoec"]
 
 [sub_resource type="Environment" id="Env_main"]
 background_mode = 1
@@ -195,7 +197,7 @@ roughness = 0.5
 size = Vector3(0.06, 0.16, 0.08)
 
 [sub_resource type="StandardMaterial3D" id="M_stick"]
-albedo_color = Color(0.45, 0.29, 0.16, 1)
+albedo_color = Color(0.3047709, 0.18942171, 0.09629693, 1)
 roughness = 0.9
 
 [sub_resource type="CylinderMesh" id="Cyl_stick"]
@@ -314,6 +316,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 6.25)
 shape = SubResource("BoxShape_13_4p5_0p5")
 
 [node name="Mesh" type="MeshInstance3D" parent="Room/WallFront" unique_id=39784257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.21196318, 0, 0)
 material_override = SubResource("M_wall")
 mesh = SubResource("BoxMesh_13_4p5_0p5")
 
@@ -399,6 +402,9 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -0.04)
 material_override = SubResource("M_eyeb")
 mesh = SubResource("Sph_cEye")
 
+[node name="Chibi Hamster 3D Character" parent="Bed/Child/Body" unique_id=1912913100 instance=ExtResource("2_wsn87")]
+transform = Transform3D(-0.62848794, 1.3922375e-05, 1.7201104e-09, 1.3614089e-05, 0.64209205, -0.019682664, -4.2655532e-07, -0.020037126, -0.63073325, -0.0061810017, -1.2188282, 0.05823183)
+
 [node name="Blanket" type="MeshInstance3D" parent="Bed" unique_id=664848955]
 transform = Transform3D(1, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.833, 1.4)
 material_override = SubResource("M_blanket")
@@ -442,24 +448,26 @@ omni_range = 9.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 4.4)
 
 [node name="Collision" type="CollisionShape3D" parent="Wardrobe" unique_id=1686932524]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40958118, 0, 0.74544716)
 shape = SubResource("BoxShape_3p2_3p2_0p8")
 
 [node name="Mesh" type="MeshInstance3D" parent="Wardrobe" unique_id=1053601291]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40958118, 0, 0.74544716)
 material_override = SubResource("M_darkwood")
 mesh = SubResource("BoxMesh_3p2_3p2_0p8")
 
 [node name="DoorLine" type="MeshInstance3D" parent="Wardrobe" unique_id=1824637221]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.41)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40958118, 0, 0.3354473)
 material_override = SubResource("M_cord")
 mesh = SubResource("BoxMesh_0p03_3p0_0p02")
 
 [node name="HandleL" type="MeshInstance3D" parent="Wardrobe" unique_id=1912824106]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0, -0.43)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2595811, 0, 0.31544685)
 material_override = SubResource("M_brass")
 mesh = SubResource("BoxMesh_0p05_0p4_0p05")
 
 [node name="HandleR" type="MeshInstance3D" parent="Wardrobe" unique_id=1714201306]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0, -0.43)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5595813, 0, 0.31544685)
 material_override = SubResource("M_brass")
 mesh = SubResource("BoxMesh_0p05_0p4_0p05")
 
@@ -482,10 +490,10 @@ light_energy = 0.0
 omni_range = 4.0
 
 [node name="Stick" type="Node3D" parent="." unique_id=1104103883]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.08, 5.5)
+transform = Transform3D(-0.35995743, -0.9329688, 0, 0.9329688, -0.35995743, 0, 0, 0, 1, 5.6263947, 0.034437403, 5.0195017)
 
 [node name="StickMesh" type="MeshInstance3D" parent="Stick" unique_id=293119589]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(0.03185112, 0.99941534, -0.012432379, 0.00016083008, -0.01244387, -0.9999225, -0.99949265, 0.031846654, -0.00055708596, 0.7923026, 0.012125358, 0.28188515)
 material_override = SubResource("M_stick")
 mesh = SubResource("Cyl_stick")
 
@@ -539,6 +547,7 @@ mesh = SubResource("Cyl_stick")
 
 [node name="Body" type="MeshInstance3D" parent="Player" unique_id=932287990]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+visible = false
 material_override = SubResource("M_player")
 mesh = SubResource("Cap_player")
 
@@ -574,7 +583,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5)
 current = true
 
 [node name="Chibi Hamster 3D Character" parent="Player" unique_id=1845544932 instance=ExtResource("3_nl7va")]
-transform = Transform3D(-0.99999493, 0, 0.0031820163, 0, 1, 0, -0.0031820163, 0, -0.99999493, -0.04432559, -0.27023125, -0.18528557)
+transform = Transform3D(-0.6618765, 0, 0.0018687989, 0, 0.690514, 0, -0.0021061124, 0, -0.58729726, -0.04432559, 0.24195111, -0.18528557)
+script = ExtResource("4_waoec")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1488824896]
 
